@@ -263,4 +263,19 @@ public static class EvaluationBuilder
         if (result.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) throw new Exception("Build failed: " + result.summary.result);
         Debug.Log("EVALUATION: Windows build succeeded.");
     }
+
+    public static void BuildRelease()
+    {
+        Validate();
+        foreach (string name in Scenes) {
+            EditorSceneManager.OpenScene("Assets/Scenes/" + name + ".unity");
+            AudioSource source = UnityEngine.Object.FindObjectOfType<AudioSource>();
+            if (source == null || !source.playOnAwake || new SerializedObject(source).FindProperty("m_Resource").objectReferenceValue == null)
+                throw new Exception("Missing scene music: " + name);
+            if (name.StartsWith("1-") && !source.loop) throw new Exception("Music must loop: " + name);
+        }
+        var result = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, "Builds/Release/SuperMario.exe", BuildTarget.StandaloneWindows64, BuildOptions.None);
+        if (result.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded) throw new Exception("Release build failed: " + result.summary.result);
+        Debug.Log("RELEASE: six music sources validated; Windows build succeeded.");
+    }
 }
