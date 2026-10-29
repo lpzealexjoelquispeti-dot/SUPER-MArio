@@ -31,11 +31,22 @@ public class GameManager : MonoBehaviour
     {
         Application.targetFrameRate = 60;
 
-        NewGame();
+        lives = 3;
+        coins = 0;
+        string[] level = SceneManager.GetActiveScene().name.Split('-');
+        world = 1;
+        stage = 1;
+        if (level.Length == 2 && int.TryParse(level[0], out int w) && int.TryParse(level[1], out int s)) {
+            world = w;
+            stage = s;
+        }
+        gameObject.AddComponent<GamePresentation>();
     }
 
     public void NewGame()
     {
+        CancelInvoke();
+        Time.timeScale = 1f;
         lives = 3;
         coins = 0;
 
@@ -44,13 +55,13 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        // TODO: show game over screen
-
-        NewGame();
+        CancelInvoke();
+        SceneManager.LoadScene("GameOver");
     }
 
     public void LoadLevel(int world, int stage)
     {
+        CancelInvoke();
         this.world = world;
         this.stage = stage;
 
@@ -59,7 +70,8 @@ public class GameManager : MonoBehaviour
 
     public void NextLevel()
     {
-        LoadLevel(world, stage + 1);
+        if (stage < 4) LoadLevel(world, stage + 1);
+        else SceneManager.LoadScene("Victory");
     }
 
     public void ResetLevel(float delay)
@@ -81,6 +93,7 @@ public class GameManager : MonoBehaviour
 
     public void AddCoin()
     {
+        GamePresentation.Sound(1100f, 0.09f);
         coins++;
 
         if (coins == 100)

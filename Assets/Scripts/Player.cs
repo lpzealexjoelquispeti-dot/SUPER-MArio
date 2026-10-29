@@ -35,6 +35,8 @@ public class Player : MonoBehaviour
 
     public void Death()
     {
+        if (dead) return;
+        GamePresentation.Sound(180f, 0.45f);
         smallRenderer.enabled = false;
         bigRenderer.enabled = false;
         deathAnimation.enabled = true;
@@ -56,6 +58,7 @@ public class Player : MonoBehaviour
 
     public void Shrink()
     {
+        StartCoroutine(HitProtection());
         smallRenderer.enabled = true;
         bigRenderer.enabled = false;
         activeRenderer = smallRenderer;
@@ -92,6 +95,13 @@ public class Player : MonoBehaviour
     public void Starpower()
     {
         StartCoroutine(StarpowerAnimation());
+    }
+
+    private IEnumerator HitProtection()
+    {
+        starpower = true;
+        yield return new WaitForSeconds(1.5f);
+        starpower = false;
     }
 
     private IEnumerator StarpowerAnimation()
