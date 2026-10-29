@@ -11,6 +11,8 @@ public class PlayerMovement : MonoBehaviour
     private float inputAxis;
 
     public float moveSpeed = 8f;
+    public bool swimming;
+    public float waterSurface = 11.5f;
     public float maxJumpHeight = 5f;
     public float maxJumpTime = 1f;
     public float jumpForce => (2f * maxJumpHeight) / (maxJumpTime / 2f);
@@ -51,6 +53,16 @@ public class PlayerMovement : MonoBehaviour
 
         grounded = rigidbody.Raycast(Vector2.down);
 
+        if (swimming) {
+            if (Input.GetButtonDown("Jump")) {
+                velocity.y = 5f;
+                GamePresentation.Sound(460f, 0.08f);
+            }
+            velocity.y = Mathf.Max(velocity.y - 8f * Time.deltaTime, -3f);
+            if (transform.position.y >= waterSurface) velocity.y = Mathf.Min(velocity.y, 0f);
+            jumping = velocity.y > 0f;
+            return;
+        }
         if (grounded) {
             GroundedMovement();
         }
@@ -101,6 +113,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetButtonDown("Jump"))
         {
             velocity.y = jumpForce;
+            GamePresentation.Sound(660f, 0.09f);
             jumping = true;
         }
     }
